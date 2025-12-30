@@ -410,6 +410,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const script = document.createElement("script");
         script.src =
           "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.integrity =
+          "sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==";
         script.crossOrigin = "anonymous";
         script.referrerPolicy = "no-referrer";
         script.onload = () =>
@@ -428,52 +430,46 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       const prevTransformPage = resumePage.style.transform;
+      const prevTransformOrigin = resumePage.style.transformOrigin;
       const prevMinHeight = pageWrapper ? pageWrapper.style.minHeight : "";
       const prevBoxShadow = resumePage.style.boxShadow;
       if (pageWrapper) pageWrapper.style.minHeight = "";
       resumePage.style.transform = "";
+      resumePage.style.transformOrigin = "top left";
       resumePage.style.boxShadow = "none";
 
       ensureHtml2Pdf()
         .then(() => {
-          const html2canvas = window.html2canvas;
-          const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-          if (!html2canvas || !jsPDF) {
-            throw new Error("html2canvas/jsPDF missing");
-          }
-
           const rect = resumePage.getBoundingClientRect();
           const pxToMm = px => (px * 25.4) / 96;
           const pageWidthMm = 210;
           const pageHeightMm = 297;
-          const orientation = pageWidthMm >= pageHeightMm ? "l" : "p";
+          const contentWidthMm = pxToMm(rect.width);
+          const contentHeightMm = pxToMm(rect.height);
+          const fitScale = Math.min(
+            1,
+            pageWidthMm / contentWidthMm,
+            pageHeightMm / contentHeightMm
+          );
 
-          return html2canvas(resumePage, {
-            scale: 2,
-            useCORS: true,
-            backgroundColor: "#ffffff",
-            scrollX: 0,
-            scrollY: 0
-          }).then(canvas => {
-            const pdf = new jsPDF({
-              orientation,
-              unit: "mm",
-              format: [pageWidthMm, pageHeightMm],
-              compress: true
-            });
-            const imgData = canvas.toDataURL("image/png", 1.0);
-            pdf.addImage(
-              imgData,
-              "PNG",
-              0,
-              0,
-              pageWidthMm,
-              pageHeightMm,
-              undefined,
-              "FAST"
-            );
-            pdf.save("resume.pdf");
-          });
+          resumePage.style.transform = `scale(${fitScale})`;
+
+          const opt = {
+            margin: [0, 0, 0, 0],
+            filename: "resume.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: "#ffffff"
+            },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            pagebreak: { mode: ["avoid-all"] }
+          };
+
+          return window.html2pdf().set(opt).from(resumePage).save();
         })
         .catch(err => {
           console.error("PDF export failed", err);
@@ -481,6 +477,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .finally(() => {
           resumePage.style.transform = prevTransformPage;
+          resumePage.style.transformOrigin = prevTransformOrigin;
           resumePage.style.boxShadow = prevBoxShadow;
           if (pageWrapper) pageWrapper.style.minHeight = prevMinHeight;
           toHide.forEach((el, idx) => {
