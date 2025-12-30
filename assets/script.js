@@ -404,55 +404,58 @@ document.addEventListener("DOMContentLoaded", function () {
   buildJobControls();
 
   /* Cookie notice + terms (RF) */
-  const consentOverlay = document.getElementById("consent-overlay");
-  const termsOverlay = document.getElementById("terms-overlay");
-  const consentAccept = document.getElementById("consent-accept");
+  const consentOverlay = document.getElementById("consent-banner");
+  const consentCard = document.querySelector(".consent-card");
+  const consentShort = document.getElementById("consent-short");
+  const consentDetails = document.getElementById("consent-details");
   const consentDetailsBtn = document.getElementById("consent-details-btn");
-  const termsAccept = document.getElementById("terms-accept");
-  const termsClose = document.getElementById("terms-close");
+  const consentCollapse = document.getElementById("consent-collapse");
+  const consentActionsShort = document.querySelector(
+    ".consent-actions--short"
+  );
+  const consentActionsDetails = document.querySelector(
+    ".consent-actions--details"
+  );
+  const consentAcceptButtons = document.querySelectorAll("[data-consent-accept]");
   const CONSENT_KEY = "pd_consent_ru";
   const CONSENT_AT_KEY = "pd_consent_ru_at";
 
-  function showOverlay(overlay) {
-    if (overlay) overlay.hidden = false;
-  }
-  function hideOverlay(overlay) {
-    if (overlay) overlay.hidden = true;
-  }
-
-  const openTerms = () => {
-    hideOverlay(consentOverlay);
-    showOverlay(termsOverlay);
+  const toggleBannerState = state => {
+    if (!consentCard) return;
+    consentCard.dataset.state = state;
+    const showDetails = state === "details";
+    if (consentDetails) consentDetails.hidden = !showDetails;
+    if (consentShort) consentShort.hidden = showDetails;
+    if (consentActionsShort) consentActionsShort.hidden = showDetails;
+    if (consentActionsDetails) consentActionsDetails.hidden = !showDetails;
     if (consentDetailsBtn)
-      consentDetailsBtn.setAttribute("aria-expanded", "true");
+      consentDetailsBtn.setAttribute("aria-expanded", String(showDetails));
   };
 
   const acceptConsent = () => {
     localStorage.setItem(CONSENT_KEY, "accepted");
     localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
-    hideOverlay(consentOverlay);
-    hideOverlay(termsOverlay);
-    if (consentDetailsBtn)
-      consentDetailsBtn.setAttribute("aria-expanded", "false");
+    if (consentOverlay) consentOverlay.hidden = true;
+    toggleBannerState("short");
   };
 
-  if (consentDetailsBtn) consentDetailsBtn.addEventListener("click", openTerms);
-  if (consentAccept) consentAccept.addEventListener("click", acceptConsent);
+  if (consentDetailsBtn) {
+    consentDetailsBtn.addEventListener("click", () => toggleBannerState("details"));
+  }
 
-  if (termsAccept) termsAccept.addEventListener("click", acceptConsent);
-  if (termsClose)
-    termsClose.addEventListener("click", () => {
-      hideOverlay(termsOverlay);
-      showOverlay(consentOverlay);
-      if (consentDetailsBtn)
-        consentDetailsBtn.setAttribute("aria-expanded", "false");
-    });
+  if (consentCollapse) {
+    consentCollapse.addEventListener("click", () => toggleBannerState("short"));
+  }
+
+  consentAcceptButtons.forEach(btn => {
+    btn.addEventListener("click", acceptConsent);
+  });
 
   if (localStorage.getItem(CONSENT_KEY) === "accepted") {
-    hideOverlay(consentOverlay);
-    hideOverlay(termsOverlay);
-  } else {
-    showOverlay(consentOverlay);
+    if (consentOverlay) consentOverlay.hidden = true;
+  } else if (consentOverlay) {
+    consentOverlay.hidden = false;
+    toggleBannerState("short");
   }
 
   if (downloadBtn && resumePage) {
