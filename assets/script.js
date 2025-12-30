@@ -410,12 +410,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const consentDetails = document.getElementById("consent-details");
   const consentDetailsBtn = document.getElementById("consent-details-btn");
   const consentCollapse = document.getElementById("consent-collapse");
-  const consentActionsShort = document.querySelector(
-    ".consent-actions--short"
-  );
-  const consentActionsDetails = document.querySelector(
-    ".consent-actions--details"
-  );
   const consentAcceptButtons = document.querySelectorAll("[data-consent-accept]");
   const CONSENT_KEY = "pd_consent_ru";
   const CONSENT_AT_KEY = "pd_consent_ru_at";
@@ -426,10 +420,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const showDetails = state === "details";
     if (consentDetails) consentDetails.hidden = !showDetails;
     if (consentShort) consentShort.hidden = showDetails;
-    if (consentActionsShort) consentActionsShort.hidden = showDetails;
-    if (consentActionsDetails) consentActionsDetails.hidden = !showDetails;
     if (consentDetailsBtn)
       consentDetailsBtn.setAttribute("aria-expanded", String(showDetails));
+    if (consentCollapse) consentCollapse.hidden = !showDetails;
+    if (consentDetailsBtn) consentDetailsBtn.hidden = showDetails;
   };
 
   const acceptConsent = () => {
