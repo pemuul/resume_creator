@@ -1,27 +1,31 @@
 document.addEventListener("DOMContentLoaded", function () {
   const resumePage = document.getElementById("resume-page");
+  const pageWrapper = document.querySelector(".page-wrapper");
   const downloadBtn = document.getElementById("download-pdf");
-  const appInner = document.querySelector(".app-inner");
 
   const photo = document.getElementById("profile-photo");
   const photoInput = document.getElementById("photo-input");
   const uploadBtn = document.getElementById("upload-btn");
 
-  /* Масштабирование всего макета под ширину экрана (для мобилки) */
+  /* Масштабирование превью резюме под ширину контейнера */
   function applyScale() {
-    if (!appInner) return;
-    const designWidth = 1240; // как в CSS
-    const vw = window.innerWidth;
+    if (!resumePage || !pageWrapper) return;
 
-    if (vw >= designWidth) {
-      appInner.style.transform = "";
-      appInner.style.width = designWidth + "px";
-      return;
+    // сбрасываем масштаб, чтобы измерить фактическую ширину
+    resumePage.style.transform = "";
+    pageWrapper.style.minHeight = "";
+
+    const wrapperWidth = pageWrapper.clientWidth;
+    const pageWidth = resumePage.offsetWidth;
+
+    if (pageWidth === 0 || wrapperWidth === 0) return;
+
+    const scale = Math.min(1, (wrapperWidth - 16) / pageWidth);
+
+    if (scale < 1) {
+      resumePage.style.transform = `scale(${scale})`;
+      pageWrapper.style.minHeight = `${resumePage.offsetHeight * scale}px`;
     }
-
-    const scale = vw / designWidth;
-    appInner.style.transform = "scale(" + scale + ")";
-    appInner.style.width = designWidth + "px";
   }
 
   applyScale();
@@ -173,6 +177,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       controlsList.appendChild(control);
     });
+
+    applyScale();
   }
 
   const educationList = document.getElementById("education-list");
@@ -343,6 +349,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       controlsList.appendChild(control);
     });
+
+    applyScale();
   }
 
   const jobsContainer = document.getElementById("jobs-container");
@@ -387,15 +395,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (downloadBtn && resumePage) {
     downloadBtn.addEventListener("click", function () {
-      const opt = {
-        margin: [0, 0, 0, 0],
-        filename: "resume.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        pagebreak: { mode: ["avoid-all"] }
-      };
-
+      const html2canvas = window.html2canvas;
+      const { jsPDF } = window.jspdf || {};
+      if (!html2canvas || !jsPDF) {
+        alert("Экспорт PDF временно недоступен. Попробуйте обновить страницу.");
+        return;
+      }
       const toHide = document.querySelectorAll(".edit-icon, .no-print");
       const prevDisplay = [];
       toHide.forEach((el, idx) => {
@@ -404,23 +409,52 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       // временно убираем масштаб перед рендером PDF
-      const prevTransform = appInner.style.transform;
-      const prevWidth = appInner.style.width;
-      appInner.style.transform = "";
-      appInner.style.width = "1240px";
+      const prevTransformPage = resumePage.style.transform;
+      const prevMinHeight = pageWrapper ? pageWrapper.style.minHeight : "";
+      if (pageWrapper) pageWrapper.style.minHeight = "";
+      resumePage.style.transform = "";
 
-      html2pdf()
-        .set(opt)
-        .from(resumePage)
-        .save()
-        .then(() => {
+      html2canvas(resumePage, { scale: 2, useCORS: true })
+        .then(canvas => {
+          const pdf = new jsPDF("p", "mm", "a4");
+          const pageWidth = pdf.internal.pageSize.getWidth();
+          const pageHeight = pdf.internal.pageSize.getHeight();
+          const imgData = canvas.toDataURL("image/png", 1.0);
+
+          const ratio = Math.min(
+            pageWidth / canvas.width,
+            pageHeight / canvas.height
+          );
+          const imgWidth = canvas.width * ratio;
+          const imgHeight = canvas.height * ratio;
+          const offsetX = (pageWidth - imgWidth) / 2;
+          const offsetY = (pageHeight - imgHeight) / 2;
+
+          pdf.addImage(
+            imgData,
+            "PNG",
+            offsetX,
+            offsetY,
+            imgWidth,
+            imgHeight,
+            undefined,
+            "FAST"
+          );
+
+          pdf.save("resume.pdf");
+        })
+        .catch(err => {
+          console.error("PDF export failed", err);
+          alert("Не удалось сформировать PDF. Попробуйте ещё раз.");
+        })
+        .finally(() => {
           // возвращаем масштаб и элементы
-          appInner.style.transform = prevTransform;
-          appInner.style.width = prevWidth;
-
+          resumePage.style.transform = prevTransformPage;
+          if (pageWrapper) pageWrapper.style.minHeight = prevMinHeight;
           toHide.forEach((el, idx) => {
             el.style.display = prevDisplay[idx] || "";
           });
+          applyScale();
         });
     });
   }
