@@ -494,6 +494,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   if (downloadBtn && resumePage) {
+    if (downloadBanner) {
+      downloadBanner.hidden = true;
+      downloadBanner.style.display = "none";
+    }
+
     const ensureHtml2Pdf = () => {
       if (window.html2pdf) return Promise.resolve(window.html2pdf);
       return new Promise((resolve, reject) => {
