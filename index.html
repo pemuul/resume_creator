@@ -187,7 +187,7 @@
           </aside>
 
           <!-- Белая колонка -->
-          <main class="main-column">
+          <main class="main-column" id="main" tabindex="-1">
             <div id="name-text" class="name" contenteditable="true">
               Екатерина Сухарева
             </div>
@@ -300,29 +300,15 @@
   <script src="assets/script.js"></script>
 
   <!-- Cookie notice and legal terms (RF) -->
-  <div class="modal-overlay modal-overlay--banner" id="consent-overlay" hidden>
-    <div class="modal-card">
+  <div class="modal-overlay modal-overlay--banner" id="consent-banner" hidden>
+    <div class="modal-card modal-card--scroll consent-card" data-state="short">
       <div class="modal-title">Файлы cookie и обработка данных</div>
-      <div class="modal-text">
-        <p>Мы используем файлы cookie и локальное хранилище, чтобы конструктор резюме работал корректно и сохранял ваши настройки на этом устройстве. Нажимая «Принять», вы даёте согласие на обработку технических данных и данных, которые вы вводите в конструктор, в соответствии с Федеральным законом № 152-ФЗ.</p>
-        <button
-          class="link-button"
-          type="button"
-          id="consent-details-btn"
-          aria-expanded="false"
-          aria-controls="terms-overlay"
-        >Ознакомиться</button>
-      </div>
-      <div class="modal-actions">
-        <button class="button-primary" type="button" id="consent-accept">Принять</button>
-      </div>
-    </div>
-  </div>
 
-  <div class="modal-overlay modal-overlay--banner" id="terms-overlay" hidden>
-    <div class="modal-card modal-card--scroll">
-      <div class="modal-title">Условия обработки данных (cookie и данные конструктора)</div>
-      <div class="modal-text modal-text--scroll">
+      <div class="modal-text consent-short" id="consent-short">
+        <p>Мы используем файлы cookie и локальное хранилище, чтобы конструктор резюме работал корректно и сохранял ваши настройки на этом устройстве. Нажимая «Принять», вы даёте согласие на обработку технических данных и данных, которые вы вводите в конструктор, в соответствии с Федеральным законом № 152-ФЗ.</p>
+      </div>
+
+      <div class="modal-text modal-text--scroll consent-details" id="consent-details" hidden>
         <p>Используя этот сайт, вы можете вводить данные для формирования резюме (например, имя, контакты, опыт, образование) и загружать фотографию. Для работы интерфейса сайт также использует технические данные (cookie и локальное хранилище браузера).</p>
         <ol>
           <li><strong>Какие данные обрабатываются</strong>
@@ -357,9 +343,17 @@
           Оператор: [ФИО / ИП / ООО «…»]<br />
           Email для обращений: [email]</p>
       </div>
-      <div class="modal-actions">
-        <button class="button-secondary" type="button" id="terms-close">Закрыть</button>
-        <button class="button-primary" type="button" id="terms-accept">Принять</button>
+
+      <div class="modal-actions consent-actions">
+        <button
+          class="button-secondary"
+          type="button"
+          id="consent-details-btn"
+          aria-expanded="false"
+          aria-controls="consent-details"
+        >Ознакомиться</button>
+        <button class="button-secondary" type="button" id="consent-collapse" hidden>Закрыть</button>
+        <button class="button-primary" type="button" data-consent-accept>Принять</button>
       </div>
     </div>
   </div>
