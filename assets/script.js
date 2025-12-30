@@ -436,23 +436,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
       ensureHtml2Pdf()
         .then(() => {
-          if (!window.html2pdf) throw new Error("html2pdf missing");
-          const opt = {
-            margin: [0, 0, 0, 0],
-            filename: "resume.pdf",
-            image: { type: "jpeg", quality: 0.98 },
-            html2canvas: {
-              scale: 2,
-              useCORS: true,
-              scrollX: 0,
-              scrollY: 0,
-              backgroundColor: "#ffffff"
-            },
-            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-            pagebreak: { mode: ["avoid-all"] }
-          };
+          const html2canvas = window.html2canvas;
+          const jsPDF = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+          if (!html2canvas || !jsPDF) {
+            throw new Error("html2canvas/jsPDF missing");
+          }
 
-          return window.html2pdf().set(opt).from(resumePage).save();
+          const rect = resumePage.getBoundingClientRect();
+          const pxToMm = px => (px * 25.4) / 96;
+          const pageWidthMm = 210;
+          const pageHeightMm = 297;
+          const orientation = pageWidthMm >= pageHeightMm ? "l" : "p";
+
+          return html2canvas(resumePage, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: "#ffffff",
+            scrollX: 0,
+            scrollY: 0
+          }).then(canvas => {
+            const pdf = new jsPDF({
+              orientation,
+              unit: "mm",
+              format: [pageWidthMm, pageHeightMm],
+              compress: true
+            });
+            const imgData = canvas.toDataURL("image/png", 1.0);
+            pdf.addImage(
+              imgData,
+              "PNG",
+              0,
+              0,
+              pageWidthMm,
+              pageHeightMm,
+              undefined,
+              "FAST"
+            );
+            pdf.save("resume.pdf");
+          });
         })
         .catch(err => {
           console.error("PDF export failed", err);
