@@ -15,17 +15,24 @@ document.addEventListener("DOMContentLoaded", function () {
     resumePage.style.transform = "";
     pageWrapper.style.minHeight = "";
 
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
     const wrapperWidth = pageWrapper.clientWidth;
     const pageWidth = resumePage.offsetWidth;
 
     if (pageWidth === 0 || wrapperWidth === 0) return;
 
-    const scale = Math.min(1, (wrapperWidth - 16) / pageWidth);
+    const baseScale = Math.min(
+      1,
+      (wrapperWidth - (isMobile ? 32 : 16)) / pageWidth
+    );
+    const scale = isMobile ? Math.min(baseScale, 0.62) : baseScale;
 
-    if (scale < 1) {
+    if (scale < 1 || isMobile) {
       resumePage.style.transform = `scale(${scale})`;
-      pageWrapper.style.minHeight = `${resumePage.offsetHeight * scale}px`;
+      pageWrapper.style.minHeight = `${resumePage.offsetHeight * scale + 20}px`;
     }
+
+    resumePage.classList.toggle("mobile-preview-mode", isMobile);
   }
 
   applyScale();
@@ -183,28 +190,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const educationList = document.getElementById("education-list");
   const addEduBtn = document.querySelector(".edit-add-edu");
+  const controlAddEdu = document.querySelector(".control-add-edu");
+
+  function addEducationItem() {
+    const template = educationList?.querySelector(
+      ".sidebar-education-item:last-of-type"
+    );
+    if (!template || !educationList) return;
+
+    const clone = template.cloneNode(true);
+
+    const yearEl = clone.querySelector(".sidebar-year");
+    const textEl = clone.querySelector(".sidebar-text");
+    if (yearEl) yearEl.textContent = "Годы обучения";
+    if (textEl) {
+      textEl.innerHTML =
+        "Название учебного заведения<br />Факультет / специальность";
+    }
+
+    educationList.appendChild(clone);
+    buildEduControls();
+  }
 
   if (educationList && addEduBtn) {
-    addEduBtn.addEventListener("click", () => {
-      const template = educationList.querySelector(
-        ".sidebar-education-item:last-of-type"
-      );
-      if (!template) return;
+    addEduBtn.addEventListener("click", addEducationItem);
+  }
 
-      const clone = template.cloneNode(true);
+  if (controlAddEdu) {
+    controlAddEdu.addEventListener("click", addEducationItem);
+  }
 
-      const yearEl = clone.querySelector(".sidebar-year");
-      const textEl = clone.querySelector(".sidebar-text");
-      if (yearEl) yearEl.textContent = "Годы обучения";
-      if (textEl) {
-        textEl.innerHTML =
-          "Название учебного заведения<br />Факультет / специальность";
-      }
-
-      educationList.appendChild(clone);
-      buildEduControls();
-    });
-
+  if (educationList && addEduBtn) {
     educationList.addEventListener("click", event => {
       const btn = event.target.closest(".edit-remove-edu");
       if (!btn) return;
@@ -355,30 +371,39 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const jobsContainer = document.getElementById("jobs-container");
   const addJobBtn = document.querySelector(".edit-add-job");
+  const controlAddJob = document.querySelector(".control-add-job");
+
+  function addJobItem() {
+    const template = jobsContainer?.querySelector(".job-block:last-of-type");
+    if (!template || !jobsContainer) return;
+
+    const clone = template.cloneNode(true);
+
+    const periodEl = clone.querySelector(".job-period");
+    const companyEl = clone.querySelector(".job-company");
+    const textEl = clone.querySelector(".job-text");
+    const listEl = clone.querySelector(".job-list");
+
+    if (periodEl) periodEl.textContent = "Период работы";
+    if (companyEl) companyEl.textContent = "Компания, должность";
+    if (textEl) textEl.textContent = "Краткое описание места работы.";
+    if (listEl) {
+      listEl.innerHTML = "<li>Основная обязанность</li>";
+    }
+
+    jobsContainer.appendChild(clone);
+    buildJobControls();
+  }
 
   if (jobsContainer && addJobBtn) {
-    addJobBtn.addEventListener("click", () => {
-      const template = jobsContainer.querySelector(".job-block:last-of-type");
-      if (!template) return;
+    addJobBtn.addEventListener("click", addJobItem);
+  }
 
-      const clone = template.cloneNode(true);
+  if (controlAddJob) {
+    controlAddJob.addEventListener("click", addJobItem);
+  }
 
-      const periodEl = clone.querySelector(".job-period");
-      const companyEl = clone.querySelector(".job-company");
-      const textEl = clone.querySelector(".job-text");
-      const listEl = clone.querySelector(".job-list");
-
-      if (periodEl) periodEl.textContent = "Период работы";
-      if (companyEl) companyEl.textContent = "Компания, должность";
-      if (textEl) textEl.textContent = "Краткое описание места работы.";
-      if (listEl) {
-        listEl.innerHTML = "<li>Основная обязанность</li>";
-      }
-
-      jobsContainer.appendChild(clone);
-      buildJobControls();
-    });
-
+  if (jobsContainer && addJobBtn) {
     jobsContainer.addEventListener("click", event => {
       const btn = event.target.closest(".edit-remove-job");
       if (!btn) return;

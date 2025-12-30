@@ -127,6 +127,13 @@ body {
   line-height: 1.4;
 }
 
+.mobile-preview-label {
+  display: none;
+  font-weight: 700;
+  margin: 10px 2px 4px;
+  color: var(--color-text-main);
+}
+
 .field-group {
   margin-bottom: 10px;
 }
@@ -191,6 +198,24 @@ body {
   padding: 6px 8px;
   margin-bottom: 10px;
   background: #ffffff;
+}
+
+.control-add-button {
+  width: 100%;
+  border: 1px dashed #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.control-add-button:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
 }
 
 .accordion {
@@ -260,6 +285,11 @@ body {
   border-radius: 4px;
   transform-origin: top center;
   margin: 0 auto;
+}
+
+.mobile-preview-mode {
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Чёрная колонка */
@@ -518,6 +548,63 @@ body {
 @media (max-width: 1024px) {
   .app {
     padding: 16px;
+  }
+
+  .mobile-preview-label {
+    display: block;
+  }
+}
+
+@media (max-width: 1100px) {
+  .page-wrapper {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 1024px) {
+  .app-inner {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    gap: 16px;
+  }
+
+  .controls {
+    width: 100%;
+    position: static;
+    top: auto;
+    max-height: none;
+  }
+
+  .page-wrapper {
+    width: 100%;
+    max-height: none;
+    overflow: hidden;
+    justify-content: center;
+    background: radial-gradient(circle at top, #f8fafc 0, #e2e8f0 100%);
+    padding: 14px 0 24px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+  }
+
+  #resume-page {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .page-wrapper {
+    overflow: hidden;
+  }
+
+  #resume-page {
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.22);
   }
 }
 
