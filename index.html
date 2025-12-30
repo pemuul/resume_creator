@@ -298,5 +298,45 @@
 
   <script src="assets/html2pdf.bundle.min.js"></script>
   <script src="assets/script.js"></script>
+
+  <!-- Cookie notice and legal terms (RF) -->
+  <div class="modal-overlay" id="consent-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-title">Файлы cookies</div>
+      <div class="modal-text">
+        Мы используем файлы cookies для работы конструктора резюме и сохранения настроек.
+        Нажимая «Принять», вы подтверждаете согласие на обработку данных в соответствии с
+        законодательством РФ (в т.ч. 152-ФЗ).
+        <button class="link-button" type="button" id="consent-details-btn">Ознакомиться с условиями</button>
+      </div>
+      <div class="modal-actions">
+        <button class="button-secondary" type="button" id="consent-reject">Закрыть</button>
+        <button class="button-primary" type="button" id="consent-accept">Принять</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="terms-overlay" hidden>
+    <div class="modal-card modal-card--scroll">
+      <div class="modal-title">Условия обработки данных</div>
+      <div class="modal-text modal-text--scroll">
+        <p>Мы обрабатываем минимально необходимую информацию, связанную с использованием конструктора резюме,
+        включая сохранение настроек и загруженных данных в пределах браузера.</p>
+        <p>Цели обработки:</p>
+        <ul>
+          <li>обеспечение работоспособности сервиса;</li>
+          <li>улучшение стабильности и удобства использования;</li>
+          <li>формирование итогового PDF-файла.</li>
+        </ul>
+        <p>Правовое основание: ваше согласие, предоставленное в соответствии с законодательством РФ,
+        в том числе Федеральным законом № 152-ФЗ «О персональных данных».</p>
+        <p>Данные не передаются третьим лицам и хранятся только локально в браузере или в скачиваемом PDF-файле.</p>
+        <p>Отзыв согласия: вы можете очистить данные, удалив cookies/локальное хранилище в браузере и прекратив использование сервиса.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="button-primary" type="button" id="terms-close">Понятно</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

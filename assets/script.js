@@ -403,6 +403,54 @@ document.addEventListener("DOMContentLoaded", function () {
   buildEduControls();
   buildJobControls();
 
+  /* Cookie notice + terms (RF) */
+  const consentOverlay = document.getElementById("consent-overlay");
+  const termsOverlay = document.getElementById("terms-overlay");
+  const consentAccept = document.getElementById("consent-accept");
+  const consentReject = document.getElementById("consent-reject");
+  const consentDetailsBtn = document.getElementById("consent-details-btn");
+  const termsClose = document.getElementById("terms-close");
+  const CONSENT_KEY = "resume_creator_cookie_consent";
+
+  function showOverlay(overlay) {
+    if (overlay) overlay.hidden = false;
+  }
+  function hideOverlay(overlay) {
+    if (overlay) overlay.hidden = true;
+  }
+
+  function openTerms() {
+    hideOverlay(consentOverlay);
+    showOverlay(termsOverlay);
+  }
+
+  function acceptConsent() {
+    localStorage.setItem(CONSENT_KEY, "accepted");
+    hideOverlay(consentOverlay);
+  }
+
+  if (consentDetailsBtn) {
+    consentDetailsBtn.addEventListener("click", openTerms);
+  }
+  if (consentAccept) {
+    consentAccept.addEventListener("click", acceptConsent);
+  }
+  if (consentReject) {
+    consentReject.addEventListener("click", () => hideOverlay(consentOverlay));
+  }
+  if (termsClose) {
+    termsClose.addEventListener("click", () => {
+      hideOverlay(termsOverlay);
+      if (!localStorage.getItem(CONSENT_KEY)) {
+        showOverlay(consentOverlay);
+      }
+    });
+  }
+
+  if (!localStorage.getItem(CONSENT_KEY)) {
+    showOverlay(consentOverlay);
+  }
+
   if (downloadBtn && resumePage) {
     const ensureHtml2Pdf = () => {
       if (window.html2pdf) return Promise.resolve(window.html2pdf);
