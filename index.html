@@ -302,14 +302,14 @@
   <!-- Cookie notice and legal terms (RF) -->
   <div class="modal-overlay" id="consent-overlay" hidden>
     <div class="modal-card">
-      <div class="modal-title">Файлы cookies</div>
+      <div class="modal-title">Согласие на обработку данных</div>
       <div class="modal-text">
-        Мы используем cookies, чтобы конструктор работал корректно и сохранял настройки.
-        Приняв, вы соглашаетесь на обработку данных по законодательству РФ (152-ФЗ).
+        <p>Мы используем cookies и локальное хранилище, чтобы сохранить черновик резюме и корректно сформировать PDF.</p>
+        <p>Нажмите «Принять», чтобы продолжить, или «Ознакомиться», чтобы увидеть полный текст условий.</p>
         <button class="link-button" type="button" id="consent-details-btn">Ознакомиться</button>
       </div>
       <div class="modal-actions">
-        <button class="button-secondary" type="button" id="consent-reject">Отменить</button>
+        <button class="button-secondary" type="button" id="consent-reject">Закрыть</button>
         <button class="button-primary" type="button" id="consent-accept">Принять</button>
       </div>
     </div>
@@ -317,25 +317,25 @@
 
   <div class="modal-overlay" id="terms-overlay" hidden>
     <div class="modal-card modal-card--scroll">
-      <div class="modal-title">Условия обработки данных</div>
+      <div class="modal-title">Полные условия обработки данных</div>
       <div class="modal-text modal-text--scroll">
-        <p>Используя конструктор, вы соглашаетесь на обработку необходимых технических данных: cookies, локальное
-          хранилище и загруженное фото. Эти данные используются только для работы интерфейса и формирования PDF.</p>
+        <p><strong>Что мы обрабатываем:</strong> cookies, локальное хранилище браузера и загруженное вами фото.</p>
+        <p><strong>Для чего:</strong></p>
         <p><strong>Цели обработки:</strong></p>
         <ul>
-          <li>обеспечение корректной работы сервиса и сохранения настроек;</li>
-          <li>подготовка итогового PDF-файла по вашим данным;</li>
-          <li>повышение стабильности и удобства использования.</li>
+          <li>корректная работа конструктора и сохранение настроек между сеансами;</li>
+          <li>формирование итогового PDF-файла по вашим данным;</li>
+          <li>повышение стабильности, удобства использования и скорости загрузки.</li>
         </ul>
-        <p><strong>Правовое основание:</strong> согласие пользователя в соответствии с законодательством РФ,
-          включая Федеральный закон № 152-ФЗ «О персональных данных».</p>
-        <p><strong>Передача третьим лицам:</strong> данные не передаются и остаются только в вашем браузере и
-          скачиваемом PDF-файле.</p>
-        <p><strong>Отзыв согласия:</strong> очистите cookies и локальное хранилище в браузере и прекратите
-          использование сервиса.</p>
+        <p><strong>Правовое основание:</strong> согласие пользователя в соответствии с законодательством РФ, включая
+          Федеральный закон № 152-ФЗ «О персональных данных».</p>
+        <p><strong>Где хранятся данные:</strong> только в вашем браузере и в сформированном PDF-файле; передача третьим
+          лицам отсутствует.</p>
+        <p><strong>Отзыв согласия:</strong> очистите cookies и локальное хранилище браузера и прекратите использование
+          сервиса.</p>
       </div>
       <div class="modal-actions">
-        <button class="button-secondary" type="button" id="terms-back">Назад</button>
+        <button class="button-secondary" type="button" id="terms-close">Закрыть</button>
         <button class="button-primary" type="button" id="terms-accept">Принять</button>
       </div>
     </div>

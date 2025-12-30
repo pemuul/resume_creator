@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const consentReject = document.getElementById("consent-reject");
   const consentDetailsBtn = document.getElementById("consent-details-btn");
   const termsAccept = document.getElementById("terms-accept");
-  const termsBack = document.getElementById("terms-back");
+  const termsClose = document.getElementById("terms-close");
   const CONSENT_KEY = "resume_creator_cookie_consent";
 
   function showOverlay(overlay) {
@@ -437,8 +437,8 @@ document.addEventListener("DOMContentLoaded", function () {
     consentReject.addEventListener("click", () => hideOverlay(consentOverlay));
 
   if (termsAccept) termsAccept.addEventListener("click", acceptConsent);
-  if (termsBack)
-    termsBack.addEventListener("click", () => {
+  if (termsClose)
+    termsClose.addEventListener("click", () => {
       hideOverlay(termsOverlay);
       showOverlay(consentOverlay);
     });
