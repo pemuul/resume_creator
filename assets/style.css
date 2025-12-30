@@ -318,7 +318,7 @@ body {
 
 .sidebar-section,
 .sidebar-title-row {
-  padding-left: 3mm;
+  padding-left: 0;
   padding-right: 3mm;
 }
 
@@ -353,26 +353,18 @@ body {
   font-size: 11pt;
   line-height: var(--line-height-base);
   font-weight: 500;
+  padding-left: 3mm;
 }
 
 .sidebar-education-item {
   margin-bottom: 2.5mm;
   position: relative;
-  display: grid;
-  grid-template-columns: 12px 1fr;
-  column-gap: 2.5mm;
-  align-items: start;
 }
 
 .sidebar-year {
   font-weight: 700;
   font-size: 11pt;
   margin-bottom: 1mm;
-}
-
-.sidebar-education-item .sidebar-year,
-.sidebar-education-item .sidebar-text {
-  grid-column: 2;
 }
 
 /* Белая колонка */
@@ -423,12 +415,9 @@ body {
   font-size: 11pt;
   line-height: 1.4;
   margin-bottom: 4mm;
-  padding-left: 0;
+  padding-left: 3mm;
   position: relative;
   font-weight: 500;
-  display: grid;
-  grid-template-columns: 12px 1fr;
-  column-gap: 2.5mm;
 }
 
 .job-period {
@@ -508,17 +497,17 @@ body {
 
 /* Минусы — аккуратно левее и чуть ниже центра строки */
 .edit-remove-edu {
-  position: static;
-  margin-top: 0.5mm;
+  position: absolute;
+  left: 0;
+  top: 0.5mm;
+  transform: translateX(-15%);
 }
 
 .edit-remove-job {
-  position: static;
-  margin-top: 0.6mm;
-}
-
-.job-block > *:not(.edit-remove-job) {
-  grid-column: 2;
+  position: absolute;
+  left: 0;
+  top: 0.6mm;
+  transform: translateX(-10%);
 }
 
 .summary-add-button {
