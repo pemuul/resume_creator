@@ -415,6 +415,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const LS_KEY = "pd_consent_ru";
 
+    const safeGetAccepted = () => {
+      try {
+        return localStorage.getItem(LS_KEY) === "accepted";
+      } catch (e) {
+        console.warn("Consent storage unavailable", e);
+        return false;
+      }
+    };
+
+    const safeSetAccepted = () => {
+      try {
+        localStorage.setItem(LS_KEY, "accepted");
+      } catch (e) {
+        console.warn("Consent storage unavailable", e);
+      }
+    };
+
     function setShortState() {
       banner.dataset.state = "short";
 
@@ -445,7 +462,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showBanner() {
       banner.hidden = false;
-      banner.inert = false;
       setShortState();
     }
 
@@ -455,13 +471,10 @@ document.addEventListener("DOMContentLoaded", function () {
       else document.activeElement?.blur?.();
 
       banner.hidden = true;
-      banner.inert = true;
     }
 
-    const accepted = localStorage.getItem(LS_KEY) === "accepted";
-    if (accepted) {
+    if (safeGetAccepted()) {
       banner.hidden = true;
-      banner.inert = true;
     } else {
       showBanner();
     }
@@ -473,7 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     btnAccept?.addEventListener("click", () => {
-      localStorage.setItem(LS_KEY, "accepted");
+      safeSetAccepted();
       hideBanner();
     });
   }
