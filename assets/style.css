@@ -23,6 +23,10 @@
   print-color-adjust: exact;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 @page {
   size: A4;
   margin: 0;
@@ -617,6 +621,12 @@ body {
   cursor: pointer;
   text-decoration: underline;
   margin-left: 4px;
+}
+
+.link-inline {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
 }
 
 [contenteditable="true"] {
