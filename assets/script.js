@@ -1,0 +1,427 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const resumePage = document.getElementById("resume-page");
+  const downloadBtn = document.getElementById("download-pdf");
+  const appInner = document.querySelector(".app-inner");
+
+  const photo = document.getElementById("profile-photo");
+  const photoInput = document.getElementById("photo-input");
+  const uploadBtn = document.getElementById("upload-btn");
+
+  /* Масштабирование всего макета под ширину экрана (для мобилки) */
+  function applyScale() {
+    if (!appInner) return;
+    const designWidth = 1240; // как в CSS
+    const vw = window.innerWidth;
+
+    if (vw >= designWidth) {
+      appInner.style.transform = "";
+      appInner.style.width = designWidth + "px";
+      return;
+    }
+
+    const scale = vw / designWidth;
+    appInner.style.transform = "scale(" + scale + ")";
+    appInner.style.width = designWidth + "px";
+  }
+
+  applyScale();
+  window.addEventListener("resize", applyScale);
+
+  /* Загрузка фото */
+
+  function triggerPhotoInput() {
+    if (!photoInput) return;
+    photoInput.value = "";
+    photoInput.click();
+  }
+
+  if (photo && uploadBtn && photoInput) {
+    photo.addEventListener("click", triggerPhotoInput);
+    uploadBtn.addEventListener("click", triggerPhotoInput);
+
+    photoInput.addEventListener("change", function (event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) {
+        alert("Пожалуйста, выберите файл изображения.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        photo.src = e.target.result;
+        uploadBtn.style.display = "none";
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* Двусторонняя привязка полей */
+
+  function bindBidirectionalText(inputId, elementId) {
+    const input = document.getElementById(inputId);
+    const el = document.getElementById(elementId);
+    if (!input || !el) return;
+
+    const syncFromEl = () => {
+      input.value = el.textContent.trim();
+    };
+    const syncFromInput = () => {
+      el.textContent = input.value;
+    };
+
+    syncFromEl();
+    input.addEventListener("input", syncFromInput);
+    el.addEventListener("input", syncFromEl);
+    el.addEventListener("blur", syncFromEl);
+  }
+
+  function bindBidirectionalMultiline(inputId, elementId) {
+    const input = document.getElementById(inputId);
+    const el = document.getElementById(elementId);
+    if (!input || !el) return;
+
+    const syncFromEl = () => {
+      input.value = el.innerText.replace(/\u00a0/g, " ").trim();
+    };
+
+    const syncFromInput = () => {
+      const lines = input.value.split(/\r?\n/);
+      const html = lines
+        .map(l => l.trim())
+        .filter(l => l.length > 0)
+        .join("<br />");
+      el.innerHTML = html || "";
+    };
+
+    syncFromEl();
+    input.addEventListener("input", syncFromInput);
+    el.addEventListener("input", syncFromEl);
+    el.addEventListener("blur", syncFromEl);
+  }
+
+  bindBidirectionalText("input-name", "name-text");
+  bindBidirectionalText("input-city", "city-text");
+  bindBidirectionalText("input-email", "email-text");
+  bindBidirectionalText("input-phone", "phone-text");
+  bindBidirectionalText("input-tg", "tg-text");
+  bindBidirectionalMultiline("input-langs", "langs-text");
+
+  /* Образование */
+
+  function buildEduControls() {
+    const educationList = document.getElementById("education-list");
+    const controlsList = document.getElementById("edu-controls-list");
+    if (!educationList || !controlsList) return;
+
+    const eduItems = Array.from(
+      educationList.querySelectorAll(".sidebar-education-item")
+    );
+    controlsList.innerHTML = "";
+
+    eduItems.forEach((item, index) => {
+      item.dataset.eduIndex = String(index);
+      const yearEl = item.querySelector(".sidebar-year");
+      const textEl = item.querySelector(".sidebar-text");
+
+      const control = document.createElement("div");
+      control.className = "edu-control-item";
+      control.dataset.eduIndex = String(index);
+      control.innerHTML = `
+        <div class="field-group">
+          <div class="field-label"><span>Годы ${index + 1}</span></div>
+          <input type="text" class="field-input edu-year-input" />
+        </div>
+        <div class="field-group">
+          <div class="field-label"><span>Текст ${index + 1}</span></div>
+          <textarea class="field-textarea edu-text-input"></textarea>
+        </div>
+      `;
+
+      const yearInput = control.querySelector(".edu-year-input");
+      const textInput = control.querySelector(".edu-text-input");
+
+      if (yearInput && yearEl) yearInput.value = yearEl.textContent.trim();
+      if (textInput && textEl)
+        textInput.value = textEl.innerText.replace(/\u00a0/g, " ").trim();
+
+      if (yearInput && yearEl) {
+        yearInput.addEventListener("input", () => {
+          yearEl.textContent = yearInput.value;
+        });
+        yearEl.oninput = () => {
+          yearInput.value = yearEl.textContent.trim();
+        };
+        yearEl.onblur = yearEl.oninput;
+      }
+
+      if (textInput && textEl) {
+        const applyTextareaToPreview = () => {
+          const lines = textInput.value
+            .split(/\r?\n/)
+            .map(l => l.trim())
+            .filter(l => l);
+          textEl.innerHTML = lines.join("<br />");
+        };
+        textInput.addEventListener("input", applyTextareaToPreview);
+
+        const syncFromPreview = () => {
+          textInput.value = textEl.innerText.replace(/\u00a0/g, " ").trim();
+        };
+        textEl.oninput = syncFromPreview;
+        textEl.onblur = syncFromPreview;
+      }
+
+      controlsList.appendChild(control);
+    });
+  }
+
+  const educationList = document.getElementById("education-list");
+  const addEduBtn = document.querySelector(".edit-add-edu");
+
+  if (educationList && addEduBtn) {
+    addEduBtn.addEventListener("click", () => {
+      const template = educationList.querySelector(
+        ".sidebar-education-item:last-of-type"
+      );
+      if (!template) return;
+
+      const clone = template.cloneNode(true);
+
+      const yearEl = clone.querySelector(".sidebar-year");
+      const textEl = clone.querySelector(".sidebar-text");
+      if (yearEl) yearEl.textContent = "Годы обучения";
+      if (textEl) {
+        textEl.innerHTML =
+          "Название учебного заведения<br />Факультет / специальность";
+      }
+
+      educationList.appendChild(clone);
+      buildEduControls();
+    });
+
+    educationList.addEventListener("click", event => {
+      const btn = event.target.closest(".edit-remove-edu");
+      if (!btn) return;
+      const item = btn.closest(".sidebar-education-item");
+      if (!item) return;
+
+      if (
+        educationList.querySelectorAll(".sidebar-education-item").length <= 1
+      )
+        return;
+      item.remove();
+      buildEduControls();
+    });
+  }
+
+  /* Опыт */
+
+  function buildJobControls() {
+    const jobsContainer = document.getElementById("jobs-container");
+    const controlsList = document.getElementById("job-controls-list");
+    if (!jobsContainer || !controlsList) return;
+
+    const jobBlocks = Array.from(
+      jobsContainer.querySelectorAll(".job-block")
+    );
+    controlsList.innerHTML = "";
+
+    jobBlocks.forEach((block, index) => {
+      block.dataset.jobIndex = String(index);
+      const periodEl = block.querySelector(".job-period");
+      const companyEl = block.querySelector(".job-company");
+      const textEl = block.querySelector(".job-text");
+      const listEl = block.querySelector(".job-list");
+
+      const control = document.createElement("div");
+      control.className = "job-control-item";
+      control.dataset.jobIndex = String(index);
+      control.innerHTML = `
+        <div class="field-group">
+          <div class="field-label"><span>Период ${index + 1}</span></div>
+          <input type="text" class="field-input job-period-input" />
+        </div>
+        <div class="field-group">
+          <div class="field-label"><span>Компания и роль ${index + 1}</span></div>
+          <input type="text" class="field-input job-company-input" />
+        </div>
+        <div class="field-group">
+          <div class="field-label"><span>Описание ${index + 1}</span></div>
+          <textarea class="field-textarea job-text-input"></textarea>
+        </div>
+        <div class="field-group">
+          <div class="field-label"><span>Обязанности ${index + 1}</span></div>
+          <textarea class="field-textarea job-list-input"></textarea>
+        </div>
+      `;
+
+      const periodInput = control.querySelector(".job-period-input");
+      const companyInput = control.querySelector(".job-company-input");
+      const textInput = control.querySelector(".job-text-input");
+      const listInput = control.querySelector(".job-list-input");
+
+      if (periodInput && periodEl)
+        periodInput.value = periodEl.textContent.trim();
+      if (companyInput && companyEl)
+        companyInput.value = companyEl.textContent.trim();
+      if (textInput) {
+        if (textEl) {
+          textInput.value = textEl.innerText.replace(/\u00a0/g, " ").trim();
+        } else {
+          textInput.value = "";
+          const fg = textInput.closest(".field-group");
+          if (fg) fg.style.display = "none";
+        }
+      }
+      if (listInput && listEl) {
+        const items = Array.from(listEl.querySelectorAll("li")).map(li =>
+          li.textContent.trim()
+        );
+        listInput.value = items.join("\n");
+      }
+
+      if (periodInput && periodEl) {
+        periodInput.addEventListener("input", () => {
+          periodEl.textContent = periodInput.value;
+        });
+        periodEl.oninput = () => {
+          periodInput.value = periodEl.textContent.trim();
+        };
+        periodEl.onblur = periodEl.oninput;
+      }
+
+      if (companyInput && companyEl) {
+        companyInput.addEventListener("input", () => {
+          companyEl.textContent = companyInput.value;
+        });
+        companyEl.oninput = () => {
+          companyInput.value = companyEl.textContent.trim();
+        };
+        companyEl.onblur = companyEl.oninput;
+      }
+
+      if (textInput && textEl) {
+        const applyTextInput = () => {
+          const lines = textInput.value
+            .split(/\r?\n/)
+            .map(l => l.trim())
+            .filter(l => l);
+          textEl.innerHTML = lines.join("<br />");
+        };
+        textInput.addEventListener("input", applyTextInput);
+        const syncFromPreview = () => {
+          textInput.value = textEl.innerText.replace(/\u00a0/g, " ").trim();
+        };
+        textEl.oninput = syncFromPreview;
+        textEl.onblur = syncFromPreview;
+      }
+
+      if (listInput && listEl) {
+        const applyListInput = () => {
+          const lines = listInput.value
+            .split(/\r?\n/)
+            .map(l => l.trim())
+            .filter(l => l);
+          listEl.innerHTML = "";
+          lines.forEach(line => {
+            const li = document.createElement("li");
+            li.textContent = line;
+            listEl.appendChild(li);
+          });
+        };
+        listInput.addEventListener("input", applyListInput);
+
+        const syncFromList = () => {
+          const items = Array.from(listEl.querySelectorAll("li")).map(li =>
+            li.textContent.trim()
+          );
+          listInput.value = items.join("\n");
+        };
+        listEl.oninput = syncFromList;
+        listEl.onblur = syncFromList;
+      }
+
+      controlsList.appendChild(control);
+    });
+  }
+
+  const jobsContainer = document.getElementById("jobs-container");
+  const addJobBtn = document.querySelector(".edit-add-job");
+
+  if (jobsContainer && addJobBtn) {
+    addJobBtn.addEventListener("click", () => {
+      const template = jobsContainer.querySelector(".job-block:last-of-type");
+      if (!template) return;
+
+      const clone = template.cloneNode(true);
+
+      const periodEl = clone.querySelector(".job-period");
+      const companyEl = clone.querySelector(".job-company");
+      const textEl = clone.querySelector(".job-text");
+      const listEl = clone.querySelector(".job-list");
+
+      if (periodEl) periodEl.textContent = "Период работы";
+      if (companyEl) companyEl.textContent = "Компания, должность";
+      if (textEl) textEl.textContent = "Краткое описание места работы.";
+      if (listEl) {
+        listEl.innerHTML = "<li>Основная обязанность</li>";
+      }
+
+      jobsContainer.appendChild(clone);
+      buildJobControls();
+    });
+
+    jobsContainer.addEventListener("click", event => {
+      const btn = event.target.closest(".edit-remove-job");
+      if (!btn) return;
+      const block = btn.closest(".job-block");
+      if (!block) return;
+      if (jobsContainer.querySelectorAll(".job-block").length <= 1) return;
+      block.remove();
+      buildJobControls();
+    });
+  }
+
+  buildEduControls();
+  buildJobControls();
+
+  if (downloadBtn && resumePage) {
+    downloadBtn.addEventListener("click", function () {
+      const opt = {
+        margin: [0, 0, 0, 0],
+        filename: "resume.pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all"] }
+      };
+
+      const toHide = document.querySelectorAll(".edit-icon, .no-print");
+      const prevDisplay = [];
+      toHide.forEach((el, idx) => {
+        prevDisplay[idx] = el.style.display;
+        el.style.display = "none";
+      });
+
+      // временно убираем масштаб перед рендером PDF
+      const prevTransform = appInner.style.transform;
+      const prevWidth = appInner.style.width;
+      appInner.style.transform = "";
+      appInner.style.width = "1240px";
+
+      html2pdf()
+        .set(opt)
+        .from(resumePage)
+        .save()
+        .then(() => {
+          // возвращаем масштаб и элементы
+          appInner.style.transform = prevTransform;
+          appInner.style.width = prevWidth;
+
+          toHide.forEach((el, idx) => {
+            el.style.display = prevDisplay[idx] || "";
+          });
+        });
+    });
+  }
+});

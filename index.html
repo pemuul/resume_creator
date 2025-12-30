@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Резюме — Конструктор</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="app-inner">
+      <!-- Панель управления -->
+      <aside class="controls">
+        <h1>Редактор резюме</h1>
+        <p>
+          1. Заполни поля ниже или редактируй текст прямо в резюме.<br />
+          2. Кликни по фото или по кнопке, чтобы загрузить своё.<br />
+          3. Нажми «Скачать PDF» — получишь 1 страницу A4.
+        </p>
+        <button class="button-primary" id="download-pdf">Скачать PDF</button>
+        <div class="hint">
+          Многострочные поля: каждая строка = новая строка или новый пункт списка.
+        </div>
+
+        <details class="accordion" open>
+          <summary>
+            <span>Общие</span>
+            <span class="accordion-arrow">▾</span>
+          </summary>
+          <div class="accordion-body">
+            <div class="field-group">
+              <div class="field-label">
+                <span>Имя</span>
+                <span class="help-icon" title="Крупный заголовок в правой колонке.">?</span>
+              </div>
+              <input id="input-name" class="field-input" type="text" />
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion">
+          <summary>
+            <span>Контакты</span>
+            <span class="accordion-arrow">▾</span>
+          </summary>
+          <div class="accordion-body">
+            <div class="field-group">
+              <div class="field-label">
+                <span>Город</span>
+                <span class="help-icon" title="Первая строка блока контактов.">?</span>
+              </div>
+              <input id="input-city" class="field-input" type="text" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">
+                <span>Email</span>
+                <span class="help-icon" title="Вторая строка блока контактов.">?</span>
+              </div>
+              <input id="input-email" class="field-input" type="text" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">
+                <span>Телефон</span>
+                <span class="help-icon" title="Третья строка блока контактов.">?</span>
+              </div>
+              <input id="input-phone" class="field-input" type="text" />
+            </div>
+            <div class="field-group">
+              <div class="field-label">
+                <span>Telegram</span>
+                <span class="help-icon" title="Четвёртая строка блока контактов.">?</span>
+              </div>
+              <input id="input-tg" class="field-input" type="text" />
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion">
+          <summary>
+            <span>Языки</span>
+            <span class="accordion-arrow">▾</span>
+          </summary>
+          <div class="accordion-body">
+            <div class="field-group">
+              <div class="field-label">
+                <span>Список языков</span>
+                <span class="help-icon" title="Каждая строка — новый язык.">?</span>
+              </div>
+              <textarea id="input-langs" class="field-textarea"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <details class="accordion">
+          <summary>
+            <span>Образование</span>
+            <span class="accordion-arrow">▾</span>
+          </summary>
+          <div class="accordion-body">
+            <div id="edu-controls-list"></div>
+          </div>
+        </details>
+
+        <details class="accordion">
+          <summary>
+            <span>Опыт работы</span>
+            <span class="accordion-arrow">▾</span>
+          </summary>
+          <div class="accordion-body">
+            <div id="job-controls-list"></div>
+          </div>
+        </details>
+      </aside>
+
+      <!-- Страница резюме -->
+      <div class="page-wrapper">
+        <div id="resume-page">
+          <!-- Чёрная колонка -->
+          <aside class="sidebar">
+            <div class="photo-block">
+              <img
+                id="profile-photo"
+                src="https://via.placeholder.com/600x800.png?text=%D0%A4%D0%BE%D1%82%D0%BE"
+                alt="Фото"
+              />
+              <input
+                type="file"
+                id="photo-input"
+                accept="image/*"
+                style="display:none"
+              />
+              <button id="upload-btn" class="upload-button no-print" type="button">
+                Загрузить фото
+              </button>
+            </div>
+
+            <div class="sidebar-section">
+              <div id="city-text" contenteditable="true">Москва</div>
+              <div id="email-text" contenteditable="true">ekaterina.sukhareva@bk</div>
+              <div id="phone-text" contenteditable="true">+7 917 124 77 00</div>
+              <div id="tg-text" contenteditable="true">ТГ: beluory</div>
+            </div>
+
+            <div class="sidebar-section">
+              <div class="sidebar-title">ЯЗЫКИ</div>
+              <div id="langs-text" class="sidebar-langs" contenteditable="true">
+                Английский B2<br />
+                Испанский A2
+              </div>
+            </div>
+
+            <div class="sidebar-section">
+              <div class="sidebar-title-row">
+                <div class="sidebar-title">ОБРАЗОВАНИЕ</div>
+                <button type="button" class="edit-icon edit-icon--light edit-add-edu no-print">+</button>
+              </div>
+
+              <div id="education-list">
+                <div class="sidebar-education-item">
+                  <button type="button" class="edit-icon edit-icon--light edit-remove-edu no-print">−</button>
+                  <div class="sidebar-year" contenteditable="true">2019–2023</div>
+                  <div class="sidebar-text" contenteditable="true">
+                    Национальный исследовательский университет
+                    «Высшая школа экономики», Москва<br />
+                    Факультет мировой экономики и мировой политики,<br />
+                    Международные отношения (бакалавр международных отношений)
+                  </div>
+                </div>
+
+                <div class="sidebar-education-item">
+                  <button type="button" class="edit-icon edit-icon--light edit-remove-edu no-print">−</button>
+                  <div class="sidebar-year" contenteditable="true">2023–2024</div>
+                  <div class="sidebar-text" contenteditable="true">
+                    Медиа институт телевидения и радиовещания Останкино<br />
+                    Тележурналистика, Теле/радио ведущий
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Белая колонка -->
+          <main class="main-column">
+            <div id="name-text" class="name" contenteditable="true">
+              Екатерина Сухарева
+            </div>
+
+            <div class="experience-header-row">
+              <div class="experience-title">
+                ОПЫТ РАБОТЫ
+              </div>
+              <button type="button" class="edit-icon edit-icon--dark edit-add-job no-print">+</button>
+            </div>
+
+            <div class="jobs-container" id="jobs-container">
+              <section class="job-block">
+                <button type="button" class="edit-icon edit-icon--dark edit-remove-job no-print">−</button>
+                <div class="job-period" contenteditable="true">
+                  Март 2022 – ноябрь 2023
+                </div>
+                <div class="job-company" contenteditable="true">
+                  ООО «ГСХ», ивент-менеджер
+                </div>
+                <div class="job-text" contenteditable="true">
+                  Организация международных бизнес-мероприятий для российских
+                  производителей, включая выставочные стенды и бизнес-миссии.
+                </div>
+                <div class="job-duties-title">
+                  Обязанности:
+                </div>
+                <ul class="job-list" contenteditable="true">
+                  <li>ведение клиента на всех этапах подготовки проекта;</li>
+                  <li>управление логистикой и проживанием всех участников;</li>
+                  <li>дизайн каталогов, стендов, промо-продукции;</li>
+                  <li>составление маркетинговых презентаций;</li>
+                  <li>ведение бюджета.</li>
+                </ul>
+              </section>
+
+              <section class="job-block">
+                <button type="button" class="edit-icon edit-icon--dark edit-remove-job no-print">−</button>
+                <div class="job-period" contenteditable="true">
+                  Ноябрь 2023 – июль 2024
+                </div>
+                <div class="job-company" contenteditable="true">
+                  М-продакшн, редактор, сценарист
+                </div>
+                <div class="job-text" contenteditable="true">
+                  Создание и выпуск передач на федеральные каналы (Россия 1, НТВ,
+                  МУЗ ТВ, ТВ-3).
+                </div>
+                <div class="job-duties-title">
+                  Обязанности:
+                </div>
+                <ul class="job-list" contenteditable="true">
+                  <li>разработка актуальных тем;</li>
+                  <li>привлечение спикеров;</li>
+                  <li>написание сценариев;</li>
+                  <li>координация создания интерактивного реквизита и декораций.</li>
+                </ul>
+              </section>
+
+              <section class="job-block">
+                <button type="button" class="edit-icon edit-icon--dark edit-remove-job no-print">−</button>
+                <div class="job-period" contenteditable="true">
+                  Сентябрь 2024 – май 2025
+                </div>
+                <div class="job-company" contenteditable="true">
+                  Москва Медиа, телеведущая
+                </div>
+                <div class="job-duties-title">
+                  Обязанности:
+                </div>
+                <ul class="job-list" contenteditable="true">
+                  <li>работа в кадре в качестве ведущей;</li>
+                  <li>координация работы команды на площадке;</li>
+                  <li>подготовка материалов и написание сюжетов для программ.</li>
+                </ul>
+              </section>
+
+              <section class="job-block">
+                <button type="button" class="edit-icon edit-icon--dark edit-remove-job no-print">−</button>
+                <div class="job-period" contenteditable="true">
+                  Октябрь 2024 – настоящее время
+                </div>
+                <div class="job-company" contenteditable="true">
+                  Фриланс, Креативный продюсер
+                </div>
+                <div class="job-text" contenteditable="true">
+                  Полное управление циклом производства видеоконтента: от разработки
+                  концепции до сдачи финального продукта.
+                </div>
+                <div class="job-duties-title">
+                  Обязанности:
+                </div>
+                <ul class="job-list" contenteditable="true">
+                  <li>создание креативов под задачи проекта;</li>
+                  <li>координация работы подрядчиков на съёмочной площадке;</li>
+                  <li>подбор локации;</li>
+                  <li>управление визуальной реализацией дизайна локации;</li>
+                  <li>подбор реквизита;</li>
+                  <li>ведение бюджета.</li>
+                </ul>
+              </section>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+    integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+  <script src="assets/script.js"></script>
+</body>
+</html>
