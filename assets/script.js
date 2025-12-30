@@ -404,13 +404,22 @@ document.addEventListener("DOMContentLoaded", function () {
   buildJobControls();
 
   if (downloadBtn && resumePage) {
+    const ensureHtml2Pdf = () => {
+      if (window.html2pdf) return Promise.resolve(window.html2pdf);
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.crossOrigin = "anonymous";
+        script.referrerPolicy = "no-referrer";
+        script.onload = () =>
+          window.html2pdf ? resolve(window.html2pdf) : reject();
+        script.onerror = () => reject();
+        document.body.appendChild(script);
+      });
+    };
+
     downloadBtn.addEventListener("click", function () {
-      const html2canvas = window.html2canvas;
-      const { jsPDF } = window.jspdf || {};
-      if (!html2canvas || !jsPDF) {
-        alert("Экспорт PDF временно недоступен. Попробуйте обновить страницу.");
-        return;
-      }
       const toHide = document.querySelectorAll(".edit-icon, .no-print");
       const prevDisplay = [];
       toHide.forEach((el, idx) => {
@@ -418,60 +427,38 @@ document.addEventListener("DOMContentLoaded", function () {
         el.style.display = "none";
       });
 
-      // временно убираем масштаб перед рендером PDF
       const prevTransformPage = resumePage.style.transform;
       const prevMinHeight = pageWrapper ? pageWrapper.style.minHeight : "";
+      const prevBoxShadow = resumePage.style.boxShadow;
       if (pageWrapper) pageWrapper.style.minHeight = "";
       resumePage.style.transform = "";
-
-      const prevBoxShadow = resumePage.style.boxShadow;
       resumePage.style.boxShadow = "none";
 
-      const rect = resumePage.getBoundingClientRect();
-      const pxToMm = px => (px * 25.4) / 96;
-      const pageWidthMm =
-        rect.width && rect.height ? pxToMm(rect.width) : 210;
-      const pageHeightMm =
-        rect.width && rect.height ? pxToMm(rect.height) : 297;
-      const orientation = pageWidthMm >= pageHeightMm ? "l" : "p";
+      ensureHtml2Pdf()
+        .then(() => {
+          if (!window.html2pdf) throw new Error("html2pdf missing");
+          const opt = {
+            margin: [0, 0, 0, 0],
+            filename: "resume.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: "#ffffff"
+            },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            pagebreak: { mode: ["avoid-all"] }
+          };
 
-      html2canvas(resumePage, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        scrollX: 0,
-        scrollY: 0
-      })
-        .then(canvas => {
-          const pdf = new jsPDF({
-            orientation,
-            unit: "mm",
-            format: [pageWidthMm, pageHeightMm],
-            compress: true
-          });
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const imgData = canvas.toDataURL("image/png", 1.0);
-
-          pdf.addImage(
-            imgData,
-            "PNG",
-            0,
-            0,
-            pageWidth,
-            pageHeight,
-            undefined,
-            "FAST"
-          );
-
-          pdf.save("resume.pdf");
+          return window.html2pdf().set(opt).from(resumePage).save();
         })
         .catch(err => {
           console.error("PDF export failed", err);
-          alert("Не удалось сформировать PDF. Попробуйте ещё раз.");
+          alert("Экспорт PDF временно недоступен. Попробуйте обновить страницу.");
         })
         .finally(() => {
-          // возвращаем масштаб и элементы
           resumePage.style.transform = prevTransformPage;
           resumePage.style.boxShadow = prevBoxShadow;
           if (pageWrapper) pageWrapper.style.minHeight = prevMinHeight;
