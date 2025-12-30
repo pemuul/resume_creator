@@ -404,81 +404,78 @@ document.addEventListener("DOMContentLoaded", function () {
   buildJobControls();
 
   /* Cookie notice + terms (RF) */
-  const consentOverlays = document.querySelectorAll("#consent-banner");
-  if (consentOverlays.length > 1) {
-    consentOverlays.forEach((overlay, index) => {
-      if (index > 0) overlay.remove();
+  const banner = document.getElementById("consent-banner");
+  if (banner) {
+    const details = document.getElementById("consent-details");
+    const shortText = document.getElementById("consent-short");
+
+    const btnDetails = document.getElementById("consent-details-btn");
+    const btnCollapse = document.getElementById("consent-collapse");
+    const btnAccept = banner.querySelector("[data-consent-accept]");
+
+    const LS_KEY = "pd_consent_ru";
+
+    function setShortState() {
+      banner.dataset.state = "short";
+
+      if (details) details.hidden = true;
+      if (shortText) shortText.hidden = false;
+
+      if (btnCollapse) btnCollapse.hidden = true;
+      if (btnDetails) {
+        btnDetails.hidden = false;
+        btnDetails.setAttribute("aria-expanded", "false");
+      }
+    }
+
+    function setDetailsState() {
+      banner.dataset.state = "details";
+
+      if (details) details.hidden = false;
+      if (shortText) shortText.hidden = true;
+
+      if (btnCollapse) btnCollapse.hidden = false;
+      if (btnDetails) {
+        btnDetails.hidden = true;
+        btnDetails.setAttribute("aria-expanded", "true");
+      }
+
+      btnCollapse?.focus?.({ preventScroll: true });
+    }
+
+    function showBanner() {
+      banner.hidden = false;
+      banner.inert = false;
+      setShortState();
+    }
+
+    function hideBanner() {
+      const main = document.getElementById("main");
+      if (main) main.focus({ preventScroll: true });
+      else document.activeElement?.blur?.();
+
+      banner.hidden = true;
+      banner.inert = true;
+    }
+
+    const accepted = localStorage.getItem(LS_KEY) === "accepted";
+    if (accepted) {
+      banner.hidden = true;
+      banner.inert = true;
+    } else {
+      showBanner();
+    }
+
+    btnDetails?.addEventListener("click", setDetailsState);
+    btnCollapse?.addEventListener("click", () => {
+      setShortState();
+      btnDetails?.focus?.({ preventScroll: true });
     });
-  }
-  const consentOverlay = consentOverlays[0] || document.getElementById("consent-banner");
-  const consentCard = consentOverlay?.querySelector(".consent-card") || document.querySelector(".consent-card");
-  const consentShort = consentOverlay?.querySelector("#consent-short");
-  const consentDetails = consentOverlay?.querySelector("#consent-details");
-  const consentDetailsBtn = consentOverlay?.querySelector("#consent-details-btn");
-  const consentCollapse = consentOverlay?.querySelector("#consent-collapse");
-  const consentAcceptButtons = consentOverlay?.querySelectorAll("[data-consent-accept]") || [];
-  const CONSENT_KEY = "pd_consent_ru";
-  const CONSENT_AT_KEY = "pd_consent_ru_at";
 
-  const toggleBannerState = state => {
-    if (!consentCard) return;
-    consentCard.dataset.state = state;
-    const showDetails = state === "details";
-    if (consentDetails) consentDetails.hidden = !showDetails;
-    if (consentShort) consentShort.hidden = showDetails;
-    if (consentDetailsBtn)
-      consentDetailsBtn.setAttribute("aria-expanded", String(showDetails));
-    if (consentCollapse) consentCollapse.hidden = !showDetails;
-    if (consentDetailsBtn) consentDetailsBtn.hidden = showDetails;
-  };
-
-  const hideBanner = () => {
-    if (consentOverlay) {
-      consentOverlay.hidden = true;
-      consentOverlay.setAttribute("aria-hidden", "true");
-    }
-  };
-
-  const showBanner = () => {
-    if (consentOverlay) {
-      consentOverlay.hidden = false;
-      consentOverlay.removeAttribute("aria-hidden");
-    }
-    toggleBannerState("short");
-  };
-
-  const acceptConsent = () => {
-    try {
-      localStorage.setItem(CONSENT_KEY, "accepted");
-      localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
-    } catch (e) {
-      console.warn("Consent storage unavailable", e);
-    }
-    hideBanner();
-    toggleBannerState("short");
-  };
-
-  if (consentDetailsBtn) {
-    consentDetailsBtn.addEventListener("click", () => toggleBannerState("details"));
-  }
-
-  if (consentCollapse) {
-    consentCollapse.addEventListener("click", () => toggleBannerState("short"));
-  }
-
-  consentAcceptButtons.forEach(btn => btn.addEventListener("click", acceptConsent));
-
-  let isAccepted = false;
-  try {
-    isAccepted = localStorage.getItem(CONSENT_KEY) === "accepted";
-  } catch (e) {
-    console.warn("Consent storage unavailable", e);
-  }
-
-  if (isAccepted) {
-    hideBanner();
-  } else {
-    showBanner();
+    btnAccept?.addEventListener("click", () => {
+      localStorage.setItem(LS_KEY, "accepted");
+      hideBanner();
+    });
   }
 
   if (downloadBtn && resumePage) {
