@@ -427,6 +427,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function acceptConsent() {
     localStorage.setItem(CONSENT_KEY, "accepted");
     hideOverlay(consentOverlay);
+    hideOverlay(termsOverlay);
   }
 
   if (consentDetailsBtn) {
