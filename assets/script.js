@@ -403,14 +403,69 @@ document.addEventListener("DOMContentLoaded", function () {
   buildEduControls();
   buildJobControls();
 
+  /* Cookie notice + terms (RF) */
+  const consentOverlay = document.getElementById("consent-overlay");
+  const termsOverlay = document.getElementById("terms-overlay");
+  const consentAccept = document.getElementById("consent-accept");
+  const consentReject = document.getElementById("consent-reject");
+  const consentDetailsBtn = document.getElementById("consent-details-btn");
+  const termsAccept = document.getElementById("terms-accept");
+  const termsBack = document.getElementById("terms-back");
+  const CONSENT_KEY = "resume_creator_cookie_consent";
+
+  function showOverlay(overlay) {
+    if (overlay) overlay.hidden = false;
+  }
+  function hideOverlay(overlay) {
+    if (overlay) overlay.hidden = true;
+  }
+
+  const openTerms = () => {
+    hideOverlay(consentOverlay);
+    showOverlay(termsOverlay);
+  };
+
+  const acceptConsent = () => {
+    localStorage.setItem(CONSENT_KEY, "accepted");
+    hideOverlay(consentOverlay);
+    hideOverlay(termsOverlay);
+  };
+
+  if (consentDetailsBtn) consentDetailsBtn.addEventListener("click", openTerms);
+  if (consentAccept) consentAccept.addEventListener("click", acceptConsent);
+  if (consentReject)
+    consentReject.addEventListener("click", () => hideOverlay(consentOverlay));
+
+  if (termsAccept) termsAccept.addEventListener("click", acceptConsent);
+  if (termsBack)
+    termsBack.addEventListener("click", () => {
+      hideOverlay(termsOverlay);
+      showOverlay(consentOverlay);
+    });
+
+  if (!localStorage.getItem(CONSENT_KEY)) {
+    showOverlay(consentOverlay);
+  }
+
   if (downloadBtn && resumePage) {
+    const ensureHtml2Pdf = () => {
+      if (window.html2pdf) return Promise.resolve(window.html2pdf);
+      return new Promise((resolve, reject) => {
+        const script = document.createElement("script");
+        script.src =
+          "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+        script.integrity =
+          "sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==";
+        script.crossOrigin = "anonymous";
+        script.referrerPolicy = "no-referrer";
+        script.onload = () =>
+          window.html2pdf ? resolve(window.html2pdf) : reject();
+        script.onerror = () => reject();
+        document.body.appendChild(script);
+      });
+    };
+
     downloadBtn.addEventListener("click", function () {
-      const html2canvas = window.html2canvas;
-      const { jsPDF } = window.jspdf || {};
-      if (!html2canvas || !jsPDF) {
-        alert("Экспорт PDF временно недоступен. Попробуйте обновить страницу.");
-        return;
-      }
       const toHide = document.querySelectorAll(".edit-icon, .no-print");
       const prevDisplay = [];
       toHide.forEach((el, idx) => {
@@ -418,61 +473,55 @@ document.addEventListener("DOMContentLoaded", function () {
         el.style.display = "none";
       });
 
-      // временно убираем масштаб перед рендером PDF
       const prevTransformPage = resumePage.style.transform;
+      const prevTransformOrigin = resumePage.style.transformOrigin;
       const prevMinHeight = pageWrapper ? pageWrapper.style.minHeight : "";
+      const prevBoxShadow = resumePage.style.boxShadow;
       if (pageWrapper) pageWrapper.style.minHeight = "";
       resumePage.style.transform = "";
-
-      const prevBoxShadow = resumePage.style.boxShadow;
+      resumePage.style.transformOrigin = "top left";
       resumePage.style.boxShadow = "none";
 
-      const rect = resumePage.getBoundingClientRect();
-      const pxToMm = px => (px * 25.4) / 96;
-      const pageWidthMm =
-        rect.width && rect.height ? pxToMm(rect.width) : 210;
-      const pageHeightMm =
-        rect.width && rect.height ? pxToMm(rect.height) : 297;
-      const orientation = pageWidthMm >= pageHeightMm ? "l" : "p";
-
-      html2canvas(resumePage, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        scrollX: 0,
-        scrollY: 0
-      })
-        .then(canvas => {
-          const pdf = new jsPDF({
-            orientation,
-            unit: "mm",
-            format: [pageWidthMm, pageHeightMm],
-            compress: true
-          });
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const imgData = canvas.toDataURL("image/png", 1.0);
-
-          pdf.addImage(
-            imgData,
-            "PNG",
-            0,
-            0,
-            pageWidth,
-            pageHeight,
-            undefined,
-            "FAST"
+      ensureHtml2Pdf()
+        .then(() => {
+          const rect = resumePage.getBoundingClientRect();
+          const pxToMm = px => (px * 25.4) / 96;
+          const pageWidthMm = 210;
+          const pageHeightMm = 297;
+          const contentWidthMm = pxToMm(rect.width);
+          const contentHeightMm = pxToMm(rect.height);
+          const fitScale = Math.min(
+            1,
+            pageWidthMm / contentWidthMm,
+            pageHeightMm / contentHeightMm
           );
 
-          pdf.save("resume.pdf");
+          resumePage.style.transform = `scale(${fitScale})`;
+
+          const opt = {
+            margin: [0, 0, 0, 0],
+            filename: "resume.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              scrollX: 0,
+              scrollY: 0,
+              backgroundColor: "#ffffff"
+            },
+            jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+            pagebreak: { mode: ["avoid-all"] }
+          };
+
+          return window.html2pdf().set(opt).from(resumePage).save();
         })
         .catch(err => {
           console.error("PDF export failed", err);
-          alert("Не удалось сформировать PDF. Попробуйте ещё раз.");
+          alert("Экспорт PDF временно недоступен. Попробуйте обновить страницу.");
         })
         .finally(() => {
-          // возвращаем масштаб и элементы
           resumePage.style.transform = prevTransformPage;
+          resumePage.style.transformOrigin = prevTransformOrigin;
           resumePage.style.boxShadow = prevBoxShadow;
           if (pageWrapper) pageWrapper.style.minHeight = prevMinHeight;
           toHide.forEach((el, idx) => {

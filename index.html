@@ -127,7 +127,7 @@
             <div class="photo-block">
               <img
                 id="profile-photo"
-                src="https://via.placeholder.com/600x800.png?text=%D0%A4%D0%BE%D1%82%D0%BE"
+                src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='800'%3E%3Crect width='100%25' height='100%25' fill='%23111'/ %3E%3Ctext x='50%25' y='50%25' fill='%23fff' font-size='48' font-family='Manrope, Arial, sans-serif' text-anchor='middle' dominant-baseline='middle'%3E%D0%A4%D0%BE%D1%82%D0%BE%3C/text%3E%3C/svg%3E"
                 alt="Фото"
               />
               <input
@@ -296,10 +296,49 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-    integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"></script>
+  <script src="assets/html2pdf.bundle.min.js"></script>
   <script src="assets/script.js"></script>
+
+  <!-- Cookie notice and legal terms (RF) -->
+  <div class="modal-overlay" id="consent-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-title">Файлы cookies</div>
+      <div class="modal-text">
+        Мы используем cookies, чтобы конструктор работал корректно и сохранял настройки.
+        Приняв, вы соглашаетесь на обработку данных по законодательству РФ (152-ФЗ).
+        <button class="link-button" type="button" id="consent-details-btn">Ознакомиться</button>
+      </div>
+      <div class="modal-actions">
+        <button class="button-secondary" type="button" id="consent-reject">Отменить</button>
+        <button class="button-primary" type="button" id="consent-accept">Принять</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="terms-overlay" hidden>
+    <div class="modal-card modal-card--scroll">
+      <div class="modal-title">Условия обработки данных</div>
+      <div class="modal-text modal-text--scroll">
+        <p>Используя конструктор, вы соглашаетесь на обработку необходимых технических данных: cookies, локальное
+          хранилище и загруженное фото. Эти данные используются только для работы интерфейса и формирования PDF.</p>
+        <p><strong>Цели обработки:</strong></p>
+        <ul>
+          <li>обеспечение корректной работы сервиса и сохранения настроек;</li>
+          <li>подготовка итогового PDF-файла по вашим данным;</li>
+          <li>повышение стабильности и удобства использования.</li>
+        </ul>
+        <p><strong>Правовое основание:</strong> согласие пользователя в соответствии с законодательством РФ,
+          включая Федеральный закон № 152-ФЗ «О персональных данных».</p>
+        <p><strong>Передача третьим лицам:</strong> данные не передаются и остаются только в вашем браузере и
+          скачиваемом PDF-файле.</p>
+        <p><strong>Отзыв согласия:</strong> очистите cookies и локальное хранилище в браузере и прекратите
+          использование сервиса.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="button-secondary" type="button" id="terms-back">Назад</button>
+        <button class="button-primary" type="button" id="terms-accept">Принять</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
