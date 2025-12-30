@@ -404,13 +404,19 @@ document.addEventListener("DOMContentLoaded", function () {
   buildJobControls();
 
   /* Cookie notice + terms (RF) */
-  const consentOverlay = document.getElementById("consent-banner");
-  const consentCard = document.querySelector(".consent-card");
-  const consentShort = document.getElementById("consent-short");
-  const consentDetails = document.getElementById("consent-details");
-  const consentDetailsBtn = document.getElementById("consent-details-btn");
-  const consentCollapse = document.getElementById("consent-collapse");
-  const consentAcceptButtons = document.querySelectorAll("[data-consent-accept]");
+  const consentOverlays = document.querySelectorAll("#consent-banner");
+  if (consentOverlays.length > 1) {
+    consentOverlays.forEach((overlay, index) => {
+      if (index > 0) overlay.remove();
+    });
+  }
+  const consentOverlay = consentOverlays[0] || document.getElementById("consent-banner");
+  const consentCard = consentOverlay?.querySelector(".consent-card") || document.querySelector(".consent-card");
+  const consentShort = consentOverlay?.querySelector("#consent-short");
+  const consentDetails = consentOverlay?.querySelector("#consent-details");
+  const consentDetailsBtn = consentOverlay?.querySelector("#consent-details-btn");
+  const consentCollapse = consentOverlay?.querySelector("#consent-collapse");
+  const consentAcceptButtons = consentOverlay?.querySelectorAll("[data-consent-accept]") || [];
   const CONSENT_KEY = "pd_consent_ru";
   const CONSENT_AT_KEY = "pd_consent_ru_at";
 
@@ -442,8 +448,12 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   const acceptConsent = () => {
-    localStorage.setItem(CONSENT_KEY, "accepted");
-    localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
+    try {
+      localStorage.setItem(CONSENT_KEY, "accepted");
+      localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
+    } catch (e) {
+      console.warn("Consent storage unavailable", e);
+    }
     hideBanner();
     toggleBannerState("short");
   };
@@ -456,11 +466,16 @@ document.addEventListener("DOMContentLoaded", function () {
     consentCollapse.addEventListener("click", () => toggleBannerState("short"));
   }
 
-  consentAcceptButtons.forEach(btn => {
-    btn.addEventListener("click", acceptConsent);
-  });
+  consentAcceptButtons.forEach(btn => btn.addEventListener("click", acceptConsent));
 
-  if (localStorage.getItem(CONSENT_KEY) === "accepted") {
+  let isAccepted = false;
+  try {
+    isAccepted = localStorage.getItem(CONSENT_KEY) === "accepted";
+  } catch (e) {
+    console.warn("Consent storage unavailable", e);
+  }
+
+  if (isAccepted) {
     hideBanner();
   } else {
     showBanner();
