@@ -409,7 +409,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const consentAccept = document.getElementById("consent-accept");
   const consentReject = document.getElementById("consent-reject");
   const consentDetailsBtn = document.getElementById("consent-details-btn");
-  const termsClose = document.getElementById("terms-close");
+  const termsAccept = document.getElementById("terms-accept");
+  const termsBack = document.getElementById("terms-back");
   const CONSENT_KEY = "resume_creator_cookie_consent";
 
   function showOverlay(overlay) {
@@ -419,34 +420,28 @@ document.addEventListener("DOMContentLoaded", function () {
     if (overlay) overlay.hidden = true;
   }
 
-  function openTerms() {
+  const openTerms = () => {
     hideOverlay(consentOverlay);
     showOverlay(termsOverlay);
-  }
+  };
 
-  function acceptConsent() {
+  const acceptConsent = () => {
     localStorage.setItem(CONSENT_KEY, "accepted");
     hideOverlay(consentOverlay);
     hideOverlay(termsOverlay);
-  }
+  };
 
-  if (consentDetailsBtn) {
-    consentDetailsBtn.addEventListener("click", openTerms);
-  }
-  if (consentAccept) {
-    consentAccept.addEventListener("click", acceptConsent);
-  }
-  if (consentReject) {
+  if (consentDetailsBtn) consentDetailsBtn.addEventListener("click", openTerms);
+  if (consentAccept) consentAccept.addEventListener("click", acceptConsent);
+  if (consentReject)
     consentReject.addEventListener("click", () => hideOverlay(consentOverlay));
-  }
-  if (termsClose) {
-    termsClose.addEventListener("click", () => {
+
+  if (termsAccept) termsAccept.addEventListener("click", acceptConsent);
+  if (termsBack)
+    termsBack.addEventListener("click", () => {
       hideOverlay(termsOverlay);
-      if (!localStorage.getItem(CONSENT_KEY)) {
-        showOverlay(consentOverlay);
-      }
+      showOverlay(consentOverlay);
     });
-  }
 
   if (!localStorage.getItem(CONSENT_KEY)) {
     showOverlay(consentOverlay);
