@@ -426,10 +426,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (consentDetailsBtn) consentDetailsBtn.hidden = showDetails;
   };
 
+  const hideBanner = () => {
+    if (consentOverlay) {
+      consentOverlay.hidden = true;
+      consentOverlay.setAttribute("aria-hidden", "true");
+    }
+  };
+
+  const showBanner = () => {
+    if (consentOverlay) {
+      consentOverlay.hidden = false;
+      consentOverlay.removeAttribute("aria-hidden");
+    }
+    toggleBannerState("short");
+  };
+
   const acceptConsent = () => {
     localStorage.setItem(CONSENT_KEY, "accepted");
     localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
-    if (consentOverlay) consentOverlay.hidden = true;
+    hideBanner();
     toggleBannerState("short");
   };
 
@@ -446,10 +461,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   if (localStorage.getItem(CONSENT_KEY) === "accepted") {
-    if (consentOverlay) consentOverlay.hidden = true;
-  } else if (consentOverlay) {
-    consentOverlay.hidden = false;
-    toggleBannerState("short");
+    hideBanner();
+  } else {
+    showBanner();
   }
 
   if (downloadBtn && resumePage) {
