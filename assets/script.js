@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <input type="text" class="field-input edu-year-input" />
         </div>
         <div class="field-group">
-          <div class="field-label"><span>Текст ${index + 1}</span></div>
+          <div class="field-label"><span>Блок ${index + 1}</span></div>
           <textarea class="field-textarea edu-text-input"></textarea>
         </div>
       `;
@@ -424,44 +424,45 @@ document.addEventListener("DOMContentLoaded", function () {
       if (pageWrapper) pageWrapper.style.minHeight = "";
       resumePage.style.transform = "";
 
-      html2canvas(resumePage, { scale: 2, useCORS: true })
+      const prevBoxShadow = resumePage.style.boxShadow;
+      resumePage.style.boxShadow = "none";
+
+      const rect = resumePage.getBoundingClientRect();
+      const pxToMm = px => (px * 25.4) / 96;
+      const pageWidthMm =
+        rect.width && rect.height ? pxToMm(rect.width) : 210;
+      const pageHeightMm =
+        rect.width && rect.height ? pxToMm(rect.height) : 297;
+      const orientation = pageWidthMm >= pageHeightMm ? "l" : "p";
+
+      html2canvas(resumePage, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scrollX: 0,
+        scrollY: 0
+      })
         .then(canvas => {
           const pdf = new jsPDF({
-            orientation: "p",
+            orientation,
             unit: "mm",
-            format: "a4",
+            format: [pageWidthMm, pageHeightMm],
             compress: true
           });
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
           const imgData = canvas.toDataURL("image/png", 1.0);
 
-          const ratio = Math.min(
-            pageWidth / canvas.width,
-            pageHeight / canvas.height
-          );
-          const imgWidth = canvas.width * ratio;
-          const imgHeight = canvas.height * ratio;
-          const offsetX = (pageWidth - imgWidth) / 2;
-          const offsetY = (pageHeight - imgHeight) / 2;
-
           pdf.addImage(
             imgData,
             "PNG",
-            offsetX,
-            offsetY,
-            imgWidth,
-            imgHeight,
+            0,
+            0,
+            pageWidth,
+            pageHeight,
             undefined,
             "FAST"
           );
-
-          const totalPages = pdf.internal.getNumberOfPages();
-          if (totalPages > 1) {
-            for (let i = totalPages; i > 1; i--) {
-              pdf.deletePage(i);
-            }
-          }
 
           pdf.save("resume.pdf");
         })
@@ -472,6 +473,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .finally(() => {
           // возвращаем масштаб и элементы
           resumePage.style.transform = prevTransformPage;
+          resumePage.style.boxShadow = prevBoxShadow;
           if (pageWrapper) pageWrapper.style.minHeight = prevMinHeight;
           toHide.forEach((el, idx) => {
             el.style.display = prevDisplay[idx] || "";
