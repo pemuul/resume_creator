@@ -183,6 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const educationList = document.getElementById("education-list");
   const addEduBtn = document.querySelector(".edit-add-edu");
+  const addEduControlBtn = document.querySelector(".add-edu-control");
 
   if (educationList && addEduBtn) {
     addEduBtn.addEventListener("click", () => {
@@ -204,6 +205,10 @@ document.addEventListener("DOMContentLoaded", function () {
       educationList.appendChild(clone);
       buildEduControls();
     });
+
+    if (addEduControlBtn) {
+      addEduControlBtn.addEventListener("click", () => addEduBtn.click());
+    }
 
     educationList.addEventListener("click", event => {
       const btn = event.target.closest(".edit-remove-edu");
@@ -355,6 +360,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const jobsContainer = document.getElementById("jobs-container");
   const addJobBtn = document.querySelector(".edit-add-job");
+  const addJobControlBtn = document.querySelector(".add-job-control");
 
   if (jobsContainer && addJobBtn) {
     addJobBtn.addEventListener("click", () => {
@@ -378,6 +384,10 @@ document.addEventListener("DOMContentLoaded", function () {
       jobsContainer.appendChild(clone);
       buildJobControls();
     });
+
+    if (addJobControlBtn) {
+      addJobControlBtn.addEventListener("click", () => addJobBtn.click());
+    }
 
     jobsContainer.addEventListener("click", event => {
       const btn = event.target.closest(".edit-remove-job");
@@ -416,7 +426,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       html2canvas(resumePage, { scale: 2, useCORS: true })
         .then(canvas => {
-          const pdf = new jsPDF("p", "mm", "a4");
+          const pdf = new jsPDF({
+            orientation: "p",
+            unit: "mm",
+            format: "a4",
+            compress: true
+          });
           const pageWidth = pdf.internal.pageSize.getWidth();
           const pageHeight = pdf.internal.pageSize.getHeight();
           const imgData = canvas.toDataURL("image/png", 1.0);
@@ -440,6 +455,13 @@ document.addEventListener("DOMContentLoaded", function () {
             undefined,
             "FAST"
           );
+
+          const totalPages = pdf.internal.getNumberOfPages();
+          if (totalPages > 1) {
+            for (let i = totalPages; i > 1; i--) {
+              pdf.deletePage(i);
+            }
+          }
 
           pdf.save("resume.pdf");
         })

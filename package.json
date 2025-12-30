@@ -1,0 +1,18 @@
+{
+  "name": "resume_creator",
+  "version": "1.0.0",
+  "description": "Одностраничное веб-приложение для быстрого создания и выгрузки PDF-резюме без серверной части. Интерфейс редактируется прямо в браузере: можно менять текстовые блоки, добавлять или удалять записи об образовании и опыте, загружать своё фото и сохранять результат как файл формата A4.",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -p 8000 .",
+    "serve": "npm run start",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
