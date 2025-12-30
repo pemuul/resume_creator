@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const resumePage = document.getElementById("resume-page");
   const pageWrapper = document.querySelector(".page-wrapper");
   const downloadBtn = document.getElementById("download-pdf");
+  const downloadBanner = document.getElementById("download-banner");
+  const bannerCloseBtn = document.getElementById("banner-close-btn");
+  const bannerDownloadBtn = document.getElementById("banner-download-btn");
 
   const photo = document.getElementById("profile-photo");
   const photoInput = document.getElementById("photo-input");
@@ -508,7 +511,20 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     };
 
-    downloadBtn.addEventListener("click", function () {
+    const closeDownloadBanner = () => {
+      if (!downloadBanner) return;
+      downloadBanner.hidden = true;
+      downloadBanner.style.display = "none";
+    };
+
+    const openDownloadBanner = () => {
+      if (!downloadBanner) return;
+      downloadBanner.hidden = false;
+      downloadBanner.style.display = "";
+      bannerCloseBtn?.focus?.({ preventScroll: true });
+    };
+
+    const generatePdf = () => {
       const toHide = document.querySelectorAll(".edit-icon, .no-print");
       const prevDisplay = [];
       toHide.forEach((el, idx) => {
@@ -572,6 +588,25 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           applyScale();
         });
+    };
+
+    downloadBtn.addEventListener("click", function () {
+      openDownloadBanner();
+    });
+
+    bannerCloseBtn?.addEventListener("click", () => {
+      closeDownloadBanner();
+    });
+
+    downloadBanner?.addEventListener("click", event => {
+      if (event.target === downloadBanner) {
+        closeDownloadBanner();
+      }
+    });
+
+    bannerDownloadBtn?.addEventListener("click", () => {
+      closeDownloadBanner();
+      generatePdf();
     });
   }
 });
