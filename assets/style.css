@@ -482,7 +482,7 @@ body {
 }
 
 .edit-icon:hover {
-  transform: translateY(-0.5px);
+  transform: none;
   background: #ffffff;
 }
 
@@ -500,14 +500,14 @@ body {
   position: absolute;
   left: 0;
   top: 0.5mm;
-  transform: translateX(-15%);
+  transform: translateX(-8px);
 }
 
 .edit-remove-job {
   position: absolute;
   left: 0;
   top: 0.6mm;
-  transform: translateX(-10%);
+  transform: translateX(-8px);
 }
 
 .summary-add-button {
