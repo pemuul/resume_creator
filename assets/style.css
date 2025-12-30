@@ -560,6 +560,12 @@ body {
   z-index: 1000;
 }
 
+.modal-overlay--banner {
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px 16px;
+}
+
 .modal-card {
   background: #ffffff;
   color: var(--color-text-main);

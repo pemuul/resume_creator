@@ -407,11 +407,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const consentOverlay = document.getElementById("consent-overlay");
   const termsOverlay = document.getElementById("terms-overlay");
   const consentAccept = document.getElementById("consent-accept");
-  const consentReject = document.getElementById("consent-reject");
   const consentDetailsBtn = document.getElementById("consent-details-btn");
   const termsAccept = document.getElementById("terms-accept");
   const termsClose = document.getElementById("terms-close");
-  const CONSENT_KEY = "resume_creator_cookie_consent";
+  const CONSENT_KEY = "pd_consent_ru";
+  const CONSENT_AT_KEY = "pd_consent_ru_at";
 
   function showOverlay(overlay) {
     if (overlay) overlay.hidden = false;
@@ -423,27 +423,35 @@ document.addEventListener("DOMContentLoaded", function () {
   const openTerms = () => {
     hideOverlay(consentOverlay);
     showOverlay(termsOverlay);
+    if (consentDetailsBtn)
+      consentDetailsBtn.setAttribute("aria-expanded", "true");
   };
 
   const acceptConsent = () => {
     localStorage.setItem(CONSENT_KEY, "accepted");
+    localStorage.setItem(CONSENT_AT_KEY, new Date().toISOString());
     hideOverlay(consentOverlay);
     hideOverlay(termsOverlay);
+    if (consentDetailsBtn)
+      consentDetailsBtn.setAttribute("aria-expanded", "false");
   };
 
   if (consentDetailsBtn) consentDetailsBtn.addEventListener("click", openTerms);
   if (consentAccept) consentAccept.addEventListener("click", acceptConsent);
-  if (consentReject)
-    consentReject.addEventListener("click", () => hideOverlay(consentOverlay));
 
   if (termsAccept) termsAccept.addEventListener("click", acceptConsent);
   if (termsClose)
     termsClose.addEventListener("click", () => {
       hideOverlay(termsOverlay);
       showOverlay(consentOverlay);
+      if (consentDetailsBtn)
+        consentDetailsBtn.setAttribute("aria-expanded", "false");
     });
 
-  if (!localStorage.getItem(CONSENT_KEY)) {
+  if (localStorage.getItem(CONSENT_KEY) === "accepted") {
+    hideOverlay(consentOverlay);
+    hideOverlay(termsOverlay);
+  } else {
     showOverlay(consentOverlay);
   }
 
