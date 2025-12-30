@@ -462,6 +462,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function showBanner() {
       banner.hidden = false;
+      banner.style.display = "";
       setShortState();
     }
 
@@ -471,6 +472,7 @@ document.addEventListener("DOMContentLoaded", function () {
       else document.activeElement?.blur?.();
 
       banner.hidden = true;
+      banner.style.display = "none";
     }
 
     if (safeGetAccepted()) {
@@ -480,10 +482,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     btnDetails?.addEventListener("click", setDetailsState);
-    btnCollapse?.addEventListener("click", () => {
-      setShortState();
-      btnDetails?.focus?.({ preventScroll: true });
-    });
+    btnCollapse?.addEventListener("click", hideBanner);
 
     btnAccept?.addEventListener("click", () => {
       safeSetAccepted();
